@@ -33,16 +33,27 @@ class NewUser(Resource):
         user = request.get_json()
         if not user:
             abort(400, message="No data Provided")
+        # checking database to ensure email and username is unique
+        error = {}
         check_user = User.query.filter_by(username=user['username']).first()
         check_mail = User.query.filter_by(email=user['email']).first()
+        if check_mail:
+            error["email"] = "User with Email already exist"
+        if check_user:
+            error["username"] = "User with Username already exist"
+        if error:
+            return error, 400
+        """Validate new user data"""
+        Validate = UserSchema()
+        error = Validate.validate(user)
+        if error:
+            return error, 400
+        new_user = User(username=user['username'], email=user['email'], password=user['password'])
+        db.session.add(new_user)
+        db.session.commit()
+        return user['username']
 
-        if check_user or check_mail:
-            return 'User already exists', 400
-        else:
-            new_user = User(username=user['username'], email=user['email'], password=user['password'])
-            db.session.add(new_user)
-            db.session.commit()
-            return user['username']
+
 
 
 api.add_resource(_User, "/user/<int:user_id>")

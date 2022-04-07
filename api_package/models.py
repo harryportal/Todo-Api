@@ -3,7 +3,6 @@ from . import ma
 from marshmallow import fields, pre_load, schema, validate
 
 
-
 # this is going to make adding, updating and deleting of todos or user easier
 class Add_Update_delete:
     def add(self, todo):
@@ -43,10 +42,13 @@ class Todo(db.Model, Add_Update_delete):
 
 
 """Creating a schema to validate, serialize and deserialize with marshmallow"""
+
+
 class UserSchema(ma.Schema):
-    id = fields.Integer(dump_only=True)     # makes it a read only data
+    id = fields.Integer(dump_only=True)  # makes it a read only data
     username = fields.String(required=True, validate=validate.Length(min=5, max=12))
     email = fields.Email(required=True)
+    password = fields.String(required=True)
     todos = fields.Nested('TodoSchema', many=True)  # for a one to many relationship
 
 
