@@ -34,7 +34,7 @@ class User(db.Model, Add_Update_delete):
 class Todo(db.Model, Add_Update_delete):
     __tablename__ = 'Todo'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    todo_name = db.Column(db.Integer, nullable=False)
+    todo_name = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.TIMESTAMP, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'), nullable=False)
 
