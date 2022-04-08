@@ -1,7 +1,10 @@
 from . import db
 from . import ma
+from api_package import app
 from marshmallow import fields, pre_load, schema, validate
 from passlib.apps import custom_app_context as password_hash
+from jwt import encode, decode
+from datetime import datetime, timedelta
 
 
 # this is going to make adding, updating and deleting of todos or user easier
@@ -29,6 +32,20 @@ class User(db.Model, Add_Update_delete):
 
     def __repr__(self):
         return f'{self.username}, {self.email}'
+
+    """ authentication """
+
+    def generate_token(self, expire=3600):
+        token = encode({'user_id': self.id, 'exp': datetime.utcnow() + timedelta(seconds=expire)},
+                       app.config['SECRET_KEY'], algorithm='HS256')
+        return token
+
+    def verify_token(self, token):
+        try:
+            user = decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        except:
+            return False
+        return User.query.get(user['user_id'])
 
     def verify_password(self, un_hashed_password):
         return password_hash.verify(un_hashed_password, self.password)

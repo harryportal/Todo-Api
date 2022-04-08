@@ -6,15 +6,29 @@ from datetime import datetime
 from passlib.apps import custom_app_context as password_hash
 from flask import g
 from api_package import auth
+from flask import jsonify
 
 
 @auth.verify_password
-def verify_user(username, password):
-    user = User.query.filter_by(username=username).first()
+def verify_user(username_or_token, password):
+    if not username_or_token:
+        return False
+    if not password:  # assumes that token was sent since password is empty
+        g.token_used = True
+        user = User()   # create an instance of the user class to verify token
+        g.user = user.verify_token(username_or_token)
+        return True
+    user = User.query.filter_by(username=username_or_token).first()  # if username and password is sent
     if not user or not user.verify_password(password):
         return False
     g.user = user
+    g.token_used = False
     return True
+
+
+@auth.error_handler
+def error():
+    return jsonify({"error": 'Invalid Credentials'}), 401
 
 
 # creating a base class for resources that will need an authentication
@@ -37,8 +51,6 @@ class _Todo(loginRequired):
         if todo:
             return todo_schema.dump(todo)
         return "No todo added", 200
-
-
 
 
 class _User(loginRequired):
@@ -75,6 +87,14 @@ class NewUser(Resource):
         db.session.add(new_user)
         db.session.commit()
         return user['username']
+
+    # returns token for authentication
+    @auth.login_required
+    def get(self):
+        if g.token_used:
+            # prevents user from generating a new token with an old token
+            return jsonify({'error': 'Invalid Credentials'})
+        return jsonify({'token': g.user.generate_token(), 'expire': 3600})
 
 
 api.add_resource(_User, "/profile")
