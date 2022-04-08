@@ -4,6 +4,7 @@ from .models import User, UserSchema, Todo, TodoSchema
 from . import api, db
 from datetime import datetime
 
+
 class _Todo(Resource):
     def post(self, user_id):
         todo = request.get_json()
@@ -12,7 +13,7 @@ class _Todo(Resource):
             abort(400, message=f'No User with id {user_id} exists')
         if not todo:
             return "Please enter a task"
-        new_todo = Todo(todo_name = todo['task'], user_id=check_user.id, timestamp=datetime.utcnow())
+        new_todo = Todo(todo_name=todo['task'], user_id=check_user.id, timestamp=datetime.utcnow())
         db.session.add(new_todo)
         db.session.commit()
 
@@ -48,12 +49,12 @@ class NewUser(Resource):
         error = Validate.validate(user)
         if error:
             return error, 400
-        new_user = User(username=user['username'], email=user['email'], password=user['password'])
+        hash_p = User()  # creates an instance of the User to hash the password
+        hashed_password = hash_p.hash_password(user['password'])
+        new_user = User(username=user['username'], email=user['email'], password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return user['username']
-
-
 
 
 api.add_resource(_User, "/user/<int:user_id>")

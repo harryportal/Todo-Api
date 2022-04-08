@@ -1,6 +1,7 @@
 from . import db
 from . import ma
 from marshmallow import fields, pre_load, schema, validate
+from passlib.apps import custom_app_context as password_hash
 
 
 # this is going to make adding, updating and deleting of todos or user easier
@@ -26,8 +27,16 @@ class User(db.Model, Add_Update_delete):
     password = db.Column(db.String, nullable=False)
     todos = db.relationship('Todo', backref='user', lazy=True)
 
+
+
     def __repr__(self):
         return f'{self.username}, {self.email}'
+
+    def hash_password(self, password):
+        return password_hash.hash(password)
+
+    def verify_password(self, hashed_password, password):
+        return password_hash.verify(hashed_password, password)
 
 
 class Todo(db.Model, Add_Update_delete):
