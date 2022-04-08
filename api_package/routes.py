@@ -3,26 +3,47 @@ from flask_restful import Resource, abort
 from .models import User, UserSchema, Todo, TodoSchema
 from . import api, db
 from datetime import datetime
+from passlib.apps import custom_app_context as password_hash
+from flask import g
+from api_package import auth
 
 
-class _Todo(Resource):
-    def post(self, user_id):
+@auth.verify_password
+def verify_user(username, password):
+    user = User.query.filter_by(username=username).first()
+    if not user or not user.verify_password(password):
+        return False
+    g.user = user
+    return True
+
+
+# creating a base class for resources that will need an authentication
+class loginRequired(Resource):
+    method_decorators = [auth.login_required]
+
+
+class _Todo(loginRequired):
+    def post(self):
         todo = request.get_json()
-        check_user = User.query.get(user_id)
-        if not check_user:
-            abort(400, message=f'No User with id {user_id} exists')
         if not todo:
             return "Please enter a task"
-        new_todo = Todo(todo_name=todo['task'], user_id=check_user.id, timestamp=datetime.utcnow())
+        new_todo = Todo(todo_name=todo['task'], user_id=g.user.id, timestamp=datetime.utcnow())
         db.session.add(new_todo)
         db.session.commit()
 
+    def get(self):
+        todo = Todo.query.filter_by(user_id=g.user.id).all()
+        todo_schema = TodoSchema  # an instance of the schema to be used for serialization
+        if todo:
+            return todo_schema.dump(todo)
+        return "No todo added", 200
 
-class _User(Resource):
-    def get(self, user_id):
-        user = User.query.get(user_id)
-        if not user:
-            abort(404, message='This user does not exist')
+
+
+
+class _User(loginRequired):
+    def get(self):
+        user = User.query.get(g.user.id)
         User_Schema = UserSchema()
         data = User_Schema.dump(user)
         return data
@@ -49,14 +70,13 @@ class NewUser(Resource):
         error = Validate.validate(user)
         if error:
             return error, 400
-        hash_p = User()  # creates an instance of the User to hash the password
-        hashed_password = hash_p.hash_password(user['password'])
+        hashed_password = password_hash.hash(user['password'])
         new_user = User(username=user['username'], email=user['email'], password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return user['username']
 
 
-api.add_resource(_User, "/user/<int:user_id>")
+api.add_resource(_User, "/profile")
 api.add_resource(NewUser, "/new")
-api.add_resource(_Todo, "/todo/<int:user_id>")
+api.add_resource(_Todo, "/todo")

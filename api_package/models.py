@@ -27,16 +27,11 @@ class User(db.Model, Add_Update_delete):
     password = db.Column(db.String, nullable=False)
     todos = db.relationship('Todo', backref='user', lazy=True)
 
-
-
     def __repr__(self):
         return f'{self.username}, {self.email}'
 
-    def hash_password(self, password):
-        return password_hash.hash(password)
-
-    def verify_password(self, hashed_password, password):
-        return password_hash.verify(hashed_password, password)
+    def verify_password(self, un_hashed_password):
+        return password_hash.verify(un_hashed_password, self.password)
 
 
 class Todo(db.Model, Add_Update_delete):
@@ -57,7 +52,6 @@ class UserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)  # makes it a read only data
     username = fields.String(required=True, validate=validate.Length(min=5, max=12))
     email = fields.Email(required=True)
-    password = fields.String(required=True)
     todos = fields.Nested('TodoSchema', many=True)  # for a one to many relationship
 
 
