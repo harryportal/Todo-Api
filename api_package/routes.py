@@ -15,7 +15,7 @@ def verify_user(username_or_token, password):
         return False
     if not password:  # assumes that token was sent since password is empty
         g.token_used = True
-        user = User()   # create an instance of the user class to verify token
+        user = User()  # create an instance of the user class to verify token
         g.user = user.verify_token(username_or_token)
         return True
     user = User.query.filter_by(username=username_or_token).first()  # if username and password is sent
@@ -53,10 +53,13 @@ class _Todo(loginRequired):
         return "No todo added", 200
 
 
-class _User(loginRequired):
+class Profile(loginRequired):
     def get(self):
-        user = User.query.get(g.user.id)
         User_Schema = UserSchema()
+        try:
+            user = User.query.get(g.user.id)
+        except:
+            return jsonify({'error': 'Invalid Credentials'})
         data = User_Schema.dump(user)
         return data
 
@@ -86,7 +89,7 @@ class NewUser(Resource):
         new_user = User(username=user['username'], email=user['email'], password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        return user['username']
+        return jsonify({"message": f"Account Created for {user['username']}"})
 
     # returns token for authentication
     @auth.login_required
@@ -97,6 +100,6 @@ class NewUser(Resource):
         return jsonify({'token': g.user.generate_token(), 'expire': 3600})
 
 
-api.add_resource(_User, "/profile")
+api.add_resource(Profile, "/profile")
 api.add_resource(NewUser, "/new")
 api.add_resource(_Todo, "/todo")

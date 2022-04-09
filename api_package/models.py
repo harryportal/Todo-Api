@@ -1,6 +1,6 @@
 from . import db
 from . import ma
-from api_package import app
+from flask import current_app
 from marshmallow import fields, pre_load, schema, validate
 from passlib.apps import custom_app_context as password_hash
 from jwt import encode, decode
@@ -42,7 +42,7 @@ class User(db.Model, Add_Update_delete):
 
     def verify_token(self, token):
         try:
-            user = decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            user = decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         except:
             return False
         return User.query.get(user['user_id'])
@@ -68,6 +68,7 @@ class Todo(db.Model, Add_Update_delete):
 class UserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)  # makes it a read only data
     username = fields.String(required=True, validate=validate.Length(min=5, max=12))
+    password = fields.String(required=True)
     email = fields.Email(required=True)
     todos = fields.Nested('TodoSchema', many=True)  # for a one to many relationship
 
