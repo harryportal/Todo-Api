@@ -9,4 +9,4 @@ class TestConfig:
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE')
     TESTING = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    WTF_CSRF_ENABLED = True
+    WTF_CSRF_ENABLED = False
