@@ -37,7 +37,7 @@ class User(db.Model, Add_Update_delete):
 
     def generate_token(self, expire=3600):
         token = encode({'user_id': self.id, 'exp': datetime.utcnow() + timedelta(seconds=expire)},
-                       app.config['SECRET_KEY'], algorithm='HS256')
+                        current_app.config['SECRET_KEY'], algorithm='HS256')
         return token
 
     def verify_token(self, token):
@@ -68,7 +68,6 @@ class Todo(db.Model, Add_Update_delete):
 class UserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)  # makes it a read only data
     username = fields.String(required=True, validate=validate.Length(min=5, max=12))
-    password = fields.String(required=True)
     email = fields.Email(required=True)
     todos = fields.Nested('TodoSchema', many=True)  # for a one to many relationship
 
