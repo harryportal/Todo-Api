@@ -10,3 +10,4 @@ class TestConfig:
     TESTING = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     WTF_CSRF_ENABLED = False
+    SERVER_NAME = '127.0.0.1'

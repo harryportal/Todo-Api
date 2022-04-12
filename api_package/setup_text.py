@@ -1,9 +1,7 @@
 import pytest
-from flask import Flask
-import routes
-from models import db
+from .models import db
 from api_package import create_app
-from config import TestConfig
+from .config import TestConfig
 
 
 @pytest.fixture
@@ -19,3 +17,4 @@ def application():
 @pytest.fixture
 def client(application):
     return application.test_client()
+
