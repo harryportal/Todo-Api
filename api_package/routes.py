@@ -91,7 +91,6 @@ class NewUser(Resource):
         db.session.commit()
         return jsonify({"message": f"Account Created for {user['username']}"})
 
-
     # returns token for authentication
     @auth.login_required
     def get(self):
