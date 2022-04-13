@@ -1,7 +1,4 @@
-import pytest
-from flask import json, url_for, current_app
-from api_package.models import db, User, Todo
-from flask import url_for
+from flask import json, url_for
 from api_package.conftest import get_content_accept_type, authentication_header
 
 test_username = 'harrypy'
