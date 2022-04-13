@@ -4,8 +4,9 @@ from api_package.models import db, User, Todo
 from base64 import b64encode
 from flask import url_for
 
-Test_User = 'harrypy'
-Test_Password = '1122334455'
+test_username = 'harrypy'
+test_password = '1122334455'
+test_email = 'xyz@gmail.com'
 
 """ defining the header attributes """
 
@@ -23,6 +24,13 @@ def authentication_header(username, password):
 
 
 def test_without_authentication_header(client):
+    """ ensure user cannot access the profile without providing the authentication for header"""
     response = client.get(url_for('profile', _external=True),
                           headers=get_content_accept_type())
     assert response.status_code == 401  # should return an unauthorized access status code
+
+def test_new_user(client):
+    data = {'username': test_username, 'email': test_email, 'password': test_password}
+    response = client.get(url_for('newuser', _external=True), headers=get_content_accept_type(),
+                          data=json.dumps(data))
+    assert response.status_code == 200
