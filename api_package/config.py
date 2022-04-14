@@ -11,3 +11,9 @@ class TestConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     WTF_CSRF_ENABLED = False
     SERVER_NAME = '127.0.0.1'
+
+class ProductionConfig:
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+
