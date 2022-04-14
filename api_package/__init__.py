@@ -29,7 +29,4 @@ def create_app(config):
 
 
 
-
-
-
 from api_package import routes
