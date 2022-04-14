@@ -6,7 +6,7 @@ from datetime import datetime
 from passlib.apps import custom_app_context as password_hash
 from flask import g
 from api_package import auth
-from flask import jsonify
+from flask import jsonify, make_response
 
 
 @auth.verify_password
@@ -28,7 +28,7 @@ def verify_user(username_or_token, password):
 
 @auth.error_handler
 def error():
-    return jsonify({"error": 'Invalid Credentials'}), 401
+    return make_response(jsonify({"error": 'Invalid Credentials'}), 401)
 
 
 # creating a base class for resources that will need an authentication
@@ -47,11 +47,33 @@ class _Todo(loginRequired):
         return 200
 
     def get(self):
-        todo = Todo.query.filter_by(user_id=g.user.id).all()
         todo_schema = TodoSchema(many=True)  # an instance of the schema to be used for serialization
-        if todo:
-            return todo_schema.dump(todo)
-        return "No todo added", 200
+        try:
+            todo = Todo.query.filter_by(user_id=g.user.id).order_by(Todo.timestamp.desc()).all()
+        except:
+            return make_response(jsonify({"message": "No todo added"}), 400)
+        todos = todo_schema.dump(todo)
+        return todos
+
+class EditTodo(loginRequired):
+    def put(self, todo_id):
+        try:
+            todo = Todo.query.get(todo_id)
+        except:
+            return jsonify({"error": f"No todo with id {todo_id}"}), 400
+        new = request.get_json()
+        todo.todo_name = new['task']
+        db.session.commit()
+
+    def delete(self, todo_id):
+        try:
+            todo = Todo.query.get(todo_id)
+            db.session.delete(todo)
+            db.session.commit()
+            return 200
+        except:
+            return make_response(jsonify({'error': f'Todo {todo_id} does not exist'}), 400)
+
 
 
 class Profile(loginRequired):
@@ -102,5 +124,6 @@ class NewUser(Resource):
 
 
 api.add_resource(Profile, "/profile")
-api.add_resource(NewUser, "/new")
-api.add_resource(_Todo, "/todo")
+api.add_resource(NewUser, "/user")
+api.add_resource(_Todo, "/todos")
+api.add_resource(EditTodo, "/todo/<int:todo_id>")
