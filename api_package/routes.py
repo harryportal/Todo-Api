@@ -46,15 +46,24 @@ class _Todo(loginRequired):
         db.session.commit()
 
     def get(self):
-        todo_schema = TodoSchema()
+        todo_schema = TodoSchema(many=True)
         try:
-            todo = User.query.get(g.user.id)
+            todo = Todo.query.filter_by(user_id=g.user.id).order_by(Todo.timestamp.desc()).all()
         except:
             return make_response(jsonify({"message": "No todo added"}), 400)
-        todos = todo_schema.dump(todo.todos)
+        todos = todo_schema.dump(todo)
         return todos
 
-class DeleteTodo(loginRequired):
+class EditTodo(loginRequired):
+    def put(self, todo_id):
+        try:
+            todo = Todo.query.get(todo_id)
+        except:
+            return jsonify({"error": f"No todo with id {todo_id}"}), 400
+        new = request.get_json()
+        todo.todo_name = new['task']
+        db.session.commit()
+
     def delete(self, todo_id):
         try:
             todo = Todo.query.get(todo_id)
@@ -113,6 +122,6 @@ class NewUser(Resource):
 
 
 api.add_resource(Profile, "/profile")
-api.add_resource(NewUser, "/new")
-api.add_resource(_Todo, "/todo")
-api.add_resource(DeleteTodo, "/todo/delete/<int:todo_id>")
+api.add_resource(NewUser, "/user")
+api.add_resource(_Todo, "/todos")
+api.add_resource(EditTodo, "/todo/<int:todo_id>")
