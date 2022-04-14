@@ -7,7 +7,7 @@ def test_new_todo(client):
     assert new_user.status_code == 200
 
     # creates a new post
-    task = {"task":" welcome to my flask api"}
+    task = {"task": " welcome to my flask api"}
     response = client.post(url_for('_todo', _external=True), headers=authentication_header(test_username,
                                                                         test_password), data=json.dumps(task))
     assert response.status_code == 200
