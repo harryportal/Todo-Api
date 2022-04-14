@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource, abort
-from .models import User, UserSchema, Todo, TodoSchema
+from .models import User, UserSchema, Todo, TodoSchema, ValidateUserSchema
 from . import api, db
 from datetime import datetime
 from passlib.apps import custom_app_context as password_hash
@@ -104,7 +104,7 @@ class NewUser(Resource):
         if error:
             return error, 400
         """Validate new user data"""
-        Validate = UserSchema()
+        Validate = ValidateUserSchema()
         error = Validate.validate(user)
         if error:
             return error, 400

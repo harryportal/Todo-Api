@@ -69,9 +69,14 @@ class UserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)  # makes it a read only data
     username = fields.String(required=True, validate=validate.Length(min=5, max=12))
     email = fields.Email(required=True)
-    password = fields.String(required=True)
     todos = fields.Nested('TodoSchema', many=True)  # for a one to many relationship
 
+class ValidateUserSchema(ma.Schema):
+    id = fields.Integer(dump_only=True)  # makes it a read only data
+    username = fields.String(required=True, validate=validate.Length(min=5, max=12))
+    email = fields.Email(required=True)
+    password = fields.String(required=True)
+    todos = fields.Nested('TodoSchema', many=True)  # for a one to many relationship
 
 class TodoSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
