@@ -31,3 +31,4 @@ virtualenv==20.13.0
 visitor==0.1.3
 Werkzeug==2.0.2
 WTForms==3.0.1
+pip freeze 
