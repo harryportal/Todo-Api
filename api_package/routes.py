@@ -44,10 +44,11 @@ class _Todo(loginRequired):
         new_todo = Todo(todo_name=todo['task'], user_id=g.user.id, timestamp=datetime.utcnow())
         db.session.add(new_todo)
         db.session.commit()
+        return 200
 
     def get(self):
         todo = Todo.query.filter_by(user_id=g.user.id).all()
-        todo_schema = TodoSchema  # an instance of the schema to be used for serialization
+        todo_schema = TodoSchema(many=True)  # an instance of the schema to be used for serialization
         if todo:
             return todo_schema.dump(todo)
         return "No todo added", 200
