@@ -69,7 +69,7 @@ class UserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)  # makes it a read only data
     username = fields.String(required=True, validate=validate.Length(min=5, max=12))
     email = fields.Email(required=True)
-    
+
 
 class ValidateUserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)  # makes it a read only data
@@ -81,5 +81,4 @@ class ValidateUserSchema(ma.Schema):
 class TodoSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     todo_name = fields.String(required=True)
-    timestamp = fields.DateTime()
     user_todo = fields.Nested(UserSchema, only=['id', 'username', 'email'], required=True)
