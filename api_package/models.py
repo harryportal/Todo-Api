@@ -56,7 +56,9 @@ class Todo(db.Model, Add_Update_delete):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     todo_name = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.TIMESTAMP, nullable=False)
+    completed = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'), nullable=False)
+
 
     def __repr__(self):
         return f'{self.todo_name}, {self.timestamp}'
