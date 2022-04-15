@@ -56,7 +56,7 @@ class Todo(db.Model, Add_Update_delete):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     todo_name = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.TIMESTAMP, nullable=False)
-    completed = db.Column(db.Boolean)
+    completed = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'), nullable=False)
 
 
@@ -83,4 +83,5 @@ class ValidateUserSchema(ma.Schema):
 class TodoSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     todo_name = fields.String(required=True)
+    completed = fields.Boolean()
     user_todo = fields.Nested(UserSchema, only=['id', 'username', 'email'], required=True)

@@ -56,6 +56,19 @@ class _Todo(loginRequired):
         return todos
 
 class EditTodo(loginRequired):
+    """ post completed Task """
+    def post(self, todo_id):
+        try:
+            todo = Todo.query.get(todo_id)
+        except:
+            return make_response({"error": "Todo does not exit"}, 400)
+        if g.user.id != todo.user.id:
+            """ ensures the user has access to only personal todos """
+            return make_response({"error": "Invalid Request"}, 400)
+        todo.completed = True
+        db.session.commit()
+
+
     def put(self, todo_id):
         try:
             todo = Todo.query.get(todo_id)
@@ -68,11 +81,13 @@ class EditTodo(loginRequired):
     def delete(self, todo_id):
         try:
             todo = Todo.query.get(todo_id)
-            db.session.delete(todo)
-            db.session.commit()
-            return 200
         except:
-            return make_response(jsonify({'error': f'Todo {todo_id} does not exist'}), 400)
+            return make_response(jsonify({'error': f'Todo does not exist'}), 400)
+        if g.user.id != todo.user.id:
+            """ ensures the user has access to only personal todos """
+            return make_response({"error": "Invalid Request"}, 400)
+        db.session.delete(todo)
+        db.session.commit()
 
 
 
@@ -123,7 +138,26 @@ class NewUser(Resource):
         return jsonify({'token': g.user.generate_token(), 'expire': 3600})
 
 
+
+class Complete_Todo(loginRequired):
+    def get(self):
+        """ get only completed task """
+        try:
+            todos = Todo.query.filter_by(user_id=g.user.id, completed=True).all()
+           # todos = todos.filter_by(completed=True)
+        except:
+            return make_response({"message": "No completed Task"}, 200)
+        todo_schema = TodoSchema(many=True)
+        completed_todos = todo_schema.dump(todos)
+        return completed_todos
+
+
+
+
+
+
 api.add_resource(Profile, "/profile")
 api.add_resource(NewUser, "/user")
 api.add_resource(_Todo, "/todos")
 api.add_resource(EditTodo, "/todo/<int:todo_id>")
+api.add_resource(Complete_Todo, "/todo/completed")
