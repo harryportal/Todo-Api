@@ -73,7 +73,7 @@ class EditTodo(loginRequired):
         try:
             todo = Todo.query.get(todo_id)
         except:
-            return jsonify({"error": f"No todo with id {todo_id}"}), 400
+            return jsonify({"error": f"Todo does not exist"}), 400
         new = request.get_json()
         todo.todo_name = new['task']
         db.session.commit()
