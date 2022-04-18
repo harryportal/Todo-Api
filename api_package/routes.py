@@ -113,11 +113,11 @@ class NewUser(Resource):
         check_user = User.query.filter_by(username=user['username']).first()
         check_mail = User.query.filter_by(email=user['email']).first()
         if check_mail:
-            error["email"] = "User with Email already exist"
+            error["error"] = "User with Email already exist"
         if check_user:
-            error["username"] = "User with Username already exist"
+            error["error"] = "User with Username already exist"
         if error:
-            return error, 400
+            return make_response(error, 400)
         """Validate new user data"""
         Validate = ValidateUserSchema()
         error = Validate.validate(user)
