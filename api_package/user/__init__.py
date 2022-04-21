@@ -6,7 +6,7 @@ from flask import jsonify, make_response, abort
 from api_package.auth import loginRequired
 from flask_restful import Resource
 from passlib.apps import custom_app_context as password_hash
-from api_package import auth
+from api_package.auth import auth
 
 
 class Profile(loginRequired):
