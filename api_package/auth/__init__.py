@@ -1,3 +1,8 @@
+
+
+
+
+
 @auth.verify_password
 def verify_user(email_or_token, password):
     if not email_or_token:
