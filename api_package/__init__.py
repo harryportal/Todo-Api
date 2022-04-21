@@ -29,4 +29,4 @@ def create_app(config):
     return app
 
 
-from api_package import routes
+from api_package import auth, todo, user

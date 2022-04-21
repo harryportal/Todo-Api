@@ -5,9 +5,8 @@ from flask import g
 from flask import jsonify, make_response, abort
 from api_package.auth import loginRequired
 from flask_restful import Resource
-from passlib import 
-
-
+from passlib.apps import custom_app_context as password_hash
+from api_package import auth
 
 
 class Profile(loginRequired):
@@ -57,4 +56,5 @@ class NewUser(Resource):
         return jsonify({'token': g.user.generate_token(), 'expire': 3600})
 
 
-
+api.add_resource(Profile, "/profile")
+api.add_resource(NewUser, "/user")
