@@ -12,7 +12,7 @@ from flask import jsonify, make_response
 @auth.verify_password
 def verify_user(email_or_token, password):
     if not email_or_token:
-        return False
+        return
     if not password:  # assumes that token was sent since password is empty
         g.token_used = True
         user = User()  # create an instance of the user class to verify token
@@ -40,7 +40,7 @@ class _Todo(loginRequired):
     def post(self):
         todo = request.get_json()
         if not todo:
-            return "Please enter a task"
+            return make_response({"error": "Cannot add empty todo"}, 400 )
         new_todo = Todo(todo_name=todo['task'], user_id=g.user.id, timestamp=datetime.utcnow())
         db.session.add(new_todo)
         db.session.commit()
@@ -146,7 +146,7 @@ class Complete_Todo(loginRequired):
             todos = Todo.query.filter_by(user_id=g.user.id, completed=True).all()
            # todos = todos.filter_by(completed=True)
         except:
-            return make_response({"message": "No completed Task"}, 200)
+            return make_response({"message": "No completed Task"}, 204)
         todo_schema = TodoSchema(many=True)
         completed_todos = todo_schema.dump(todos)
         return completed_todos
